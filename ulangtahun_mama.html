@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ulang Tahun Mama - Tema Gunung Biru</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial, sans-serif;}
+body{
+  height:100vh;
+  overflow:hidden;
+  background:linear-gradient(to top,#81d4fa,#e1f5fe);
+  color:#0d47a1;
+}
+
+/* Matahari */
+.sun{
+  position:absolute;top:30px;right:40px;
+  width:80px;height:80px;border-radius:50%;
+  background:#fff59d;box-shadow:0 0 25px #fff;
+  animation:pulse 3s infinite alternate;
+}
+@keyframes pulse{from{transform:scale(1);}to{transform:scale(1.1);}}
+
+/* Gunung Biru */
+.mountain{position:absolute;bottom:0;width:0;height:0;border-left:300px solid transparent;border-right:300px solid transparent;border-bottom:300px solid #1e88e5;opacity:0.9;}
+.m1{left:5%;}
+.m2{left:35%;border-bottom-color:#1565c0;transform:scale(1.2);} 
+.m3{left:65%;border-bottom-color:#42a5f5;transform:scale(0.9);} 
+
+/* Awan */
+.cloud{
+  position:absolute;top:15%;width:120px;height:60px;background:white;border-radius:50px;opacity:0.8;
+  animation:cloudMove 25s linear infinite;
+}
+.cloud::before,.cloud::after{content:"";position:absolute;background:white;width:60px;height:60px;border-radius:50%;}
+.cloud::before{top:-30px;left:20px;}
+.cloud::after{top:-20px;right:15px;}
+@keyframes cloudMove{from{left:-150px;}to{left:110%;}}
+
+/* Kue */
+#cakeContainer{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;animation:zoomIn 1.5s forwards;}
+@keyframes zoomIn{from{transform:translate(-50%,-50%) scale(0);}to{transform:translate(-50%,-50%) scale(1);}}
+.cake{width:220px;margin:auto;position:relative;}
+.layer{height:50px;background:#ffccbc;border-radius:12px;margin-top:6px;}
+.layer2{background:#ffab91;}
+.layer3{background:#ff8a65;}
+.candle{position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:10px;height:40px;background:white;}
+.flame{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:14px;height:14px;background:orange;border-radius:50%;animation:flicker .2s infinite alternate;}
+@keyframes flicker{from{transform:translateX(-50%) scale(1);}to{transform:translateX(-50%) scale(1.3);}}
+
+/* Kartu Ucapan */
+.card{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:22px;border-radius:18px;width:80%;max-width:500px;text-align:center;box-shadow:0 10px 20px rgba(0,0,0,0.3);display:none;animation:fadeIn 1.5s forwards;}
+@keyframes fadeIn{from{opacity:0;transform:translate(-50%,-40%);}to{opacity:1;}}
+button{padding:10px 18px;border:none;background:#1e88e5;color:white;border-radius:15px;cursor:pointer;font-size:1rem;}
+button:hover{background:#0d47a1;}
+
+/* Hati Terbang */
+.heart{position:absolute;bottom:0;font-size:20px;color:pink;animation:floatUp 5s linear infinite;}
+@keyframes floatUp{from{transform:translateY(0);opacity:1;}to{transform:translateY(-100vh);opacity:0;}}
+</style>
+</head>
+<body>
+
+<div class="sun"></div>
+<div class="cloud" style="top:12%;animation-duration:30s"></div>
+<div class="cloud" style="top:22%;animation-duration:40s"></div>
+
+<!-- Gunung Biru -->
+<div class="mountain m1"></div>
+<div class="mountain m2"></div>
+<div class="mountain m3"></div>
+
+<!-- Kue -->
+<div id="cakeContainer">
+  <div class="cake">
+    <div class="layer"></div>
+    <div class="layer layer2"></div>
+    <div class="layer layer3"></div>
+    <div class="candle"><div class="flame"></div></div>
+  </div>
+  <p style="font-weight:bold;font-size:1.2rem;">Surprise untuk Mama 🎂</p>
+</div>
+
+<!-- Ucapan -->
+<div class="card" id="card">
+  <h2>🎉 Selamat Ulang Tahun Mama 🎉</h2>
+  <p id="message"></p>
+  <p id="quote" style="font-style:italic;color:#1e88e5;"></p>
+  <button onclick="nextMessage()">Ucapan Berikutnya</button>
+</div>
+
+<script>
+// Pesan Ulang Tahun
+// Lilin bisa dipadamkan dengan suara (tiup)
+let blown=false;
+const flameEl = document.querySelector('.flame');
+
+// Deteksi mikrofon (tiup lilin)
+if(navigator.mediaDevices){
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    const mic = audioCtx.createMediaStreamSource(stream);
+    const analyser = audioCtx.createAnalyser();
+    mic.connect(analyser);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+
+    function detectBlow(){
+      analyser.getByteFrequencyData(data);
+      let volume = data.reduce((a,b)=>a+b)/data.length;
+      if(volume > 50 && !blown){
+        blown=true;
+        flameEl.style.display='none';
+        alert('Lilin padam! 🎉 Selamat ulang tahun Mama!');
+      }
+      requestAnimationFrame(detectBlow);
+    }
+    detectBlow();
+  }).catch(()=>{
+    console.log('Mikrofon tidak diizinkan');
+  });
+}
+
+const messages=[
+  'Terima kasih Mama sudah merawat dan menyayangi aku tanpa lelah.',
+  'Semoga Mama selalu sehat, panjang umur, dan bahagia.',
+  'Semoga semua doa dan impian Mama dikabulkan Tuhan.',
+  'Aku sayang Mama selamanya ❤️'
+];
+const quotes=[
+  'Kasih ibu adalah cinta tanpa batas.',
+  'Ibu adalah cahaya dalam keluarga.',
+  'Di balik anak hebat ada ibu yang luar biasa.',
+  'Cinta ibu adalah keajaiban terbesar di dunia.'
+];
+let i=0;
+function nextMessage(){
+  document.getElementById('message').innerText=messages[i];
+  document.getElementById('quote').innerText=quotes[i];
+  i=(i+1)%messages.length;
+}
+nextMessage();
+
+// Kue dulu, lalu ucapan
+setTimeout(()=>{
+  document.getElementById('cakeContainer').style.display='none';
+  document.getElementById('card').style.display='block';
+},4000);
+
+// Hati terbang
+function createHeart(){
+  const h=document.createElement('div');
+  h.className='heart';
+  h.innerHTML='❤';
+  h.style.left=Math.random()*100+'vw';
+  h.style.animationDuration=(3+Math.random()*3)+'s';
+  document.body.appendChild(h);
+  setTimeout(()=>h.remove(),5000);
+}
+setInterval(createHeart,500);
+</script>
+</body>
+</html>
